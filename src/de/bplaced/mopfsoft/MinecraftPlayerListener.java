@@ -26,6 +26,7 @@ public class MinecraftPlayerListener implements Listener {
 	@EventHandler
 	public void onWorldChange(PlayerChangedWorldEvent event) {
 
+		System.out.println(event.getPlayer().getWorld());
 		RandomInventory.setPlaying(event.getPlayer(),
 				RandomInventory.worldMap.get(event.getPlayer().getWorld()));
 

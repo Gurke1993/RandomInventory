@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +48,7 @@ public class RandomInventory extends JavaPlugin{
 		 
 		 //load item list
 			try {
-				
+				new File("plugins"+System.getProperty("file.separator")+"RandomInventory"+System.getProperty("file.separator")+"inventories.txt").createNewFile();
 				File file = new File("plugins"+System.getProperty("file.separator")+"RandomInventory"+System.getProperty("file.separator")+"values.txt");
 				if (!file.exists()) {
 					new File("plugins"+System.getProperty("file.separator")+"RandomInventory").mkdirs();
@@ -157,12 +158,102 @@ public class RandomInventory extends JavaPlugin{
 			}
 	 }
 	 
-	public static void setPlaying(Player p, boolean isPlaying) {
+	public static void setPlaying(Player p, Boolean isPlaying) {
+		if (isPlaying == null)
+			isPlaying = false;
+			
 		playerMap.put(p, isPlaying);
-		if (isPlaying)
-		tryToGiveNewInventory(p);
+		if (isPlaying) {
+			saveInventory(p, p.getInventory());
+			giveNewInventory(p);
+		} else {
+			loadInventory(p);
+		}
 	 }
 	
+	private static void loadInventory(Player p) {
+		PlayerInventory inv = p.getInventory();
+		
+
+		
+		//add old items from file
+		try {
+		FileReader fr = new FileReader(new File("plugins"+System.getProperty("file.separator")+"RandomInventory"+System.getProperty("file.separator")+"inventories.txt"));
+		BufferedReader reader = new BufferedReader(fr);
+		
+		String line;
+		String file = "";
+		while ((line=reader.readLine()) != null) {
+			
+			if (line.startsWith(p.getName())) {
+				
+				//clear inventory
+				inv.clear();
+				
+				String[] inventory = line.split(",");
+				String[] stack;
+				for (int i = 1; i<inventory.length; i++ ) {
+					stack = inventory[i].split(":");
+					
+					//Basics
+					ItemStack istack = new ItemStack(Integer.parseInt(stack[0]),Integer.parseInt(stack[2]) ,Short.parseShort(stack[1]));
+					
+					//Enchantments
+					for (int j = 3; j<stack.length; j++) {
+						String[] ench = stack[j].split("=");
+						istack.addEnchantment(Enchantment.getById(Integer.parseInt(ench[0])), Integer.parseInt(ench[1]));
+					}
+					
+					inv.addItem(istack);
+				}
+				
+			} else {
+				
+				file+=line+System.getProperty("line.separator");
+				
+			}
+			
+			
+			
+		}
+		
+		reader.close();
+		fr.close();
+		
+		FileWriter writer = new FileWriter(new File("plugins"+System.getProperty("file.separator")+"RandomInventory"+System.getProperty("file.separator")+"inventories.txt"), false);
+		writer.write(file);
+		writer.close();
+		
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void saveInventory(Player p, PlayerInventory inventory) {
+		try {
+			FileWriter writer = new FileWriter(new File("plugins"+System.getProperty("file.separator")+"RandomInventory"+System.getProperty("file.separator")+"inventories.txt"), true);
+			String inventoryAsString = p.getName();
+			
+			for (ItemStack stack: inventory.getContents()) {
+				if (stack != null) {
+					inventoryAsString+=","+stack.getTypeId()+":"+stack.getDurability()+":"+stack.getAmount();
+					
+					for (Entry<Enchantment,Integer> ench: stack.getEnchantments().entrySet()) {
+						inventoryAsString+=":"+ench.getKey().getId()+"="+ench.getValue();
+					}
+				}
+				
+			}
+			
+			writer.write(inventoryAsString+System.getProperty("line.separator"));
+			writer.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static boolean tryToGiveNewInventory(Player p) {
 		// Check for delay between inventory refreshes
 		if (RandomInventory.lastInteractionMap.get(p) == null
