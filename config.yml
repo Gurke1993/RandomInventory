@@ -1,0 +1,7 @@
+# default config.yml for RandomInventory
+
+# delay between two inventory refreshes by a player (in seconds)
+delay: 30
+
+#worlds in which the game should run
+worlds: world
