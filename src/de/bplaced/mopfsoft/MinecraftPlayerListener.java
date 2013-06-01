@@ -11,7 +11,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.PlayerDeathEvent;
 
 public class MinecraftPlayerListener implements Listener {
 
@@ -26,7 +28,6 @@ public class MinecraftPlayerListener implements Listener {
 	@EventHandler
 	public void onWorldChange(PlayerChangedWorldEvent event) {
 
-		System.out.println(event.getPlayer().getWorld());
 		RandomInventory.setPlaying(event.getPlayer(),
 				RandomInventory.worldMap.get(event.getPlayer().getWorld()));
 
@@ -44,6 +45,25 @@ public class MinecraftPlayerListener implements Listener {
 
 		if (RandomInventory.isPlaying(event.getPlayer())) {
 			event.setCancelled(true);
+		}
+
+	}
+	
+	@EventHandler
+	public void onDeath(PlayerDeathEvent event) {
+
+		if (RandomInventory.isPlaying(event.getEntity())) {
+			event.setDroppedExp(0);
+			event.getDrops().clear();
+		}
+
+	}
+	
+	@EventHandler
+	public void onRespawn(PlayerRespawnEvent event) {
+
+		if (RandomInventory.isPlaying(event.getPlayer())) {
+			RandomInventory.giveNewInventory(event.getPlayer());
 		}
 
 	}

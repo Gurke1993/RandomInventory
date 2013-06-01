@@ -1,6 +1,6 @@
 name: RandomInventory
 main: de.bplaced.mopfsoft.RandomInventory
-version: 0.2
+version: 0.3
 commands:
     randominv:
         description: Main RandomInventory command

@@ -120,6 +120,7 @@ public class RandomInventory extends JavaPlugin{
 		//Fill hungerbar
 		player.setFoodLevel(20);
 		 
+		player.getInventory().clear();
 		 
 			for (int i = 1; i<9; i++) {
 				//type:value
@@ -192,6 +193,8 @@ public class RandomInventory extends JavaPlugin{
 				
 				String[] inventory = line.split(",");
 				String[] stack;
+				
+				//Inventory
 				for (int i = 1; i<inventory.length; i++ ) {
 					stack = inventory[i].split(":");
 					
